@@ -17549,7 +17549,7 @@ function FhirClient(p) {
 	const blob = new Blob([JSON.stringify(server.auth)], { type: "application/json" });
 const a = document.createElement("a");
 a.href = URL.createObjectURL(blob);
-a.download = "auth.json";
+//a.download = "auth.json";
 a.click();
 	
     client.api = fhir({
