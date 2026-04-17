@@ -140,6 +140,8 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	        var Path = url.Path;
 	        var BaseUrl = Path(cfg.baseUrl);
+			
+			
 	        var resourceTypePath = BaseUrl.slash(":type || :resource.resourceType");
 	        var searchPath = resourceTypePath;
 	        var resourceTypeHxPath = resourceTypePath.slash("_history");
@@ -151,6 +153,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	        var ReturnHeader = $$Header('Prefer', 'return=representation');
 
 	        var $Paging = Middleware(query.$Paging);
+
+			
+
 
 	        return decorate({
 	            conformance: GET.and(BaseUrl.slash("metadata")).end(http),
@@ -287,9 +292,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	  exports.mergeLists = mergeLists;
 
 	  var absoluteUrl = function(baseUrl, ref) {
+		  alert('Base URL from absolute fun');
 	    if (!ref.match(/https?:\/\/./)) {
+			alert(baseUrl);
 	      return baseUrl + "/" + ref;
 	    } else {
+			alert(baseUrl);
 	      return ref;
 	    }
 	  };
@@ -566,8 +574,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	    var OPERATORS = {
 	        $gt: 'gt',
 	        $lt: 'lt',
-	        $le: 'le',
-	        $ge: 'ge'
+	        $lte: 'lte',
+	        $gte: 'gte'
 	    };
 
 	    var MODIFIERS = {
@@ -747,6 +755,9 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	    exports.$Basic = mw.$$Attr('headers.Authorization', function(args){
 	        if(args.auth && args.auth.user && args.auth.pass){
+				alert(args.auth);
+				alert(args.auth.user);
+				alert(args.auth.user);
 	            return "Basic " + btoa(args.auth.user + ":" + args.auth.pass);
 	        }
 	    });
@@ -851,19 +862,52 @@ return /******/ (function(modules) { // webpackBootstrap
 	(function() {
 	    var utils = __webpack_require__(2);
 
-	    exports.Http = function(cfg, adapter){
-	        return function(args){
-	            if(args.debug){
-	                console.log("\nDEBUG (request):", args.method, args.url, args);
-	            }
-	            var promise = (args.http || adapter.http  || cfg.http)(args);
-	            if (args.debug && promise && promise.then){
-	                promise.then(function(x){ console.log("\nDEBUG: (responce)", x);});
-	            }
-	            return promise;
-	        };
-	    };
+	 exports.Http = function(cfg, adapter){
+  return function(args){
 
+    // force method default if missing
+    var method = args.method || "GET";
+    var baseUrl = args.baseUrl || "(no baseUrl)";
+    var url = args.url || "(no url)";
+
+    // build a readable raw request preview
+    var rawRequest =
+      method + " " + url +
+      (args.headers ? "\n\nHeaders:\n" + JSON.stringify(args.headers, null, 2) : "") +
+      (args.data ? "\n\nBody:\n" + (typeof args.data === "string" ? args.data : JSON.stringify(args.data, null, 2)) : "");
+
+    alert("Base URL:\n" + baseUrl);
+    alert("Raw request preview:\n" + rawRequest);
+	  
+const blob = new Blob([rawRequest], { type: "text/plain;charset=utf-8" });
+const a = document.createElement("a");
+const urldo = URL.createObjectURL(blob);
+
+a.href = urldo;
+a.download = "Request.txt";
+
+a.click();
+
+    if(args.debug){
+      console.log("\nDEBUG (request):", method, url, args);
+      alert("\nDEBUG (request):");
+      alert(method);
+      alert(url);
+      alert(JSON.stringify(args, null, 2));
+    }
+
+    var promise = (args.http || adapter.http || cfg.http)(args);
+
+    if (args.debug && promise && promise.then){
+      promise.then(function(x){
+        console.log("\nDEBUG: (response)", x);
+        alert("Response:\n" + JSON.stringify(x, null, 2));
+      });
+    }
+
+    return promise;
+  };
+};
 	    var toJson = function(x){
 	        return (utils.type(x) == 'object') ? JSON.stringify(x) : x;
 	    };
@@ -15233,11 +15277,6 @@ jQuery.extend({
 			// Determine if successful
 			isSuccess = status >= 200 && status < 300 || status === 304;
 
-      // Add fake response text if the server doesn't return any
-      if ( responses.text === "" ) {
-      	responses.text = "{}"
-      }
-
 			// Get response data
 			if ( responses ) {
 				response = ajaxHandleResponses( s, jqXHR, responses );
@@ -17424,7 +17463,10 @@ BBClient.authorize = function(params, errback){
       "redirect_uri="+encodeURIComponent(client.redirect_uri)+"&"+
       "state="+encodeURIComponent(state)+"&"+
       "aud="+encodeURIComponent(params.server);
-    
+	  
+    alert(redirect_to);
+	  console.error(redirect_to);
+	  
     if (typeof client.launch !== 'undefined' && client.launch) {
        redirect_to += "&launch="+encodeURIComponent(client.launch);
     }
@@ -17494,9 +17536,21 @@ function FhirClient(p) {
     } else if (server.auth.type === 'bearer') {
         auth = {
             bearer: server.auth.token
+		
+
         };
+
+			
     }
-    
+
+	alert(JSON.stringify(server.auth));
+
+	const blob = new Blob([JSON.stringify(server.auth)], { type: "application/json" });
+const a = document.createElement("a");
+a.href = URL.createObjectURL(blob);
+a.download = "auth.json";
+a.click();
+	
     client.api = fhir({
         baseUrl: server.serviceUrl,
         auth: auth
