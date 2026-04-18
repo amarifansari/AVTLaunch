@@ -3,7 +3,6 @@
     var ret = $.Deferred();
 
     function onError() {
-      console.log('Loading error', arguments);
       ret.reject();
     }
 
@@ -24,67 +23,63 @@
 
         $.when(pt, obv).fail(onError);
 
-        $.when(pt, obv).done(function(patient, obv) {
-          var byCodes = smart.byCodes(obv, 'code');
-          var gender = patient.gender;
+     $.when(pt, obv).done(function(patient, obv) {
+  var byCodes = smart.byCodes(obv, 'code');
 
-          var fname = '';
-          var lname = '';
+  var fname = '';
+  var lname = '';
 
-          if (typeof patient.name[0] !== 'undefined') {
-            fname = patient.name[0].given.join(' ');
-            lname = patient.name[0].family.join(' ');
-          }
+  if (typeof patient.name[0] !== 'undefined') {
+    fname = patient.name[0].given.join(' ');
+  }
 
-          var height = byCodes('8302-2');
-          var systolicbp = getBloodPressureValue(byCodes('55284-4'),'8480-6');
-          var diastolicbp = getBloodPressureValue(byCodes('55284-4'),'8462-4');
-          var hdl = byCodes('2085-9');
-          var ldl = byCodes('2089-1');
+  var height = byCodes('8302-2');
+  var systolicbp = getBloodPressureValue(byCodes('55284-4'),'8480-6');
+  var diastolicbp = getBloodPressureValue(byCodes('55284-4'),'8462-4');
+  var hdl = byCodes('2085-9');
+  var ldl = byCodes('2089-1');
 
-          var p = defaultPatient();
-          p.birthdate = patient.birthDate;
-          p.gender = gender;
-          p.fname = fname;
-          p.lname = lname;
-          p.height = getQuantityValueAndUnit(height[0]);
+  var p = defaultPatient();
+  p.birthdate = patient.birthDate;
+  p.gender = gender;
+  p.fname = fname;
+  p.lname = lname;
+  p.height = getQuantityValueAndUnit(height[0]);
 
-          if (typeof systolicbp != 'undefined')  {
-            p.systolicbp = systolicbp;
-          }
+  if (typeof systolicbp != 'undefined') {
+    p.systolicbp = systolicbp;
+  }
 
-          if (typeof diastolicbp != 'undefined') {
-            p.diastolicbp = diastolicbp;
-          }
+  if (typeof diastolicbp != 'undefined') {
+    p.diastolicbp = diastolicbp;
+  }
 
-          p.hdl = getQuantityValueAndUnit(hdl[0]);
-          p.ldl = getQuantityValueAndUnit(ldl[0]);
-
-          ret.resolve(p);
-        });
+  p.hdl = getQuantityValueAndUnit(hdl[0]);
+  p.ldl = getQuantityValueAndUnit(ldl[0]);
+  ret.resolve(p);
+});
       } else {
         onError();
       }
     }
-
     FHIR.oauth2.ready(onReady, onError);
     return ret.promise();
-
   };
 
-  function defaultPatient(){
-    return {
-      fname: {value: ''},
-      lname: {value: ''},
-      gender: {value: ''},
-      birthdate: {value: ''},
-      height: {value: ''},
-      systolicbp: {value: ''},
-      diastolicbp: {value: ''},
-      ldl: {value: ''},
-      hdl: {value: ''},
-    };
-  }
+  function defaultPatient() {
+  return {
+    fname: '',
+    lname: '',
+    gender: '',
+    birthdate: '',
+    height: '',
+    systolicbp: '',
+    diastolicbp: '',
+    ldl: '',
+    hdl: '',
+    resp: 'Loading...'
+  };
+}
 
   function getBloodPressureValue(BPObservations, typeOfPressure) {
     var formattedBPObservations = [];
